@@ -8,11 +8,31 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
+// Add headers
+app.use(function (req, res, next) {
+
+  // Website you wish to allow to connect
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+
+  // Request methods you wish to allow
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+  // Request headers you wish to allow
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+  // Set to true if you need the website to include cookies in the requests sent
+  // to the API (e.g. in case you use sessions)
+  res.setHeader('Access-Control-Allow-Credentials', true);
+
+  // Pass to next layer of middleware
+  next();
+});
+
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'web2'
+  database: 'web'
 });
 
 // connection.connect(function (err) {
@@ -26,7 +46,17 @@ app.get('/api/news', (req, res) => {
     res.json({ news: results });
   });
 });
+//SELECT * FROM account WHERE username= '$username' AND password= '$password'
+app.post('/api/news/login', (req, res) => {
+  var sql = "SELECT * FROM account WHERE username='" + req.body.body.username + "' AND password='" + req.body.body.password + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ news: results });
+    console.log(req);
+    
 
+  });
+});
 
 app.post('/api/insert', function (req, res) {
   console.log(req.body)
@@ -41,6 +71,7 @@ app.post('/api/insert', function (req, res) {
     res.json({ news: results });
   });
 });
+
 app.post('/api/edit', (req, res) => {
   var sql = "UPDATE account SET "
     + "username='" + req.body.username + "',"
