@@ -32,63 +32,71 @@ const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'web'
+  database: 'project'
 });
 
 // connection.connect(function (err) {
 //   (err) ? console.log(err) : console.log(connection);
 // });
 
-app.get('/api/news', (req, res) => {
-  var sql = "SELECT * FROM account ORDER BY accountid DESC";
-  connection.query(sql, function (err, results) {
-    if (err) throw err;
-    res.json({ news: results });
-  });
-});
+//API for login
 //SELECT * FROM account WHERE username= '$username' AND password= '$password'
-app.post('/api/news/login', (req, res) => {
+app.post('/api/account/login', (req, res) => {
   var sql = "SELECT * FROM account WHERE username='" + req.body.body.username + "' AND password='" + req.body.body.password + "'";
   connection.query(sql, function (err, results) {
     if (err) throw err;
     res.json({ news: results });
     console.log(req);
-    
-
   });
 });
 
-app.post('/api/insert', function (req, res) {
-  console.log(req.body)
+// API in table Account (Need inner join to show some data in another table)
+app.get('/api/account/views', (req, res) => {
+  var sql = "SELECT * FROM account";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ news: results });
+  });
+});
+
+//API in table Department
+
+app.get('/api/department/views', (req, res) => {
+  var sql = "SELECT * FROM department";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ department: results });
+  })
+})
+
+app.post('/api/department/insert', (req, res) => {
   var sql = "INSERT "
-    + "INTO account(username,password,roleID) "
+    + "INTO department(name)"
     + "VALUES('"
-    + req.body.username + "','"
-    + req.body.password + "','"
-    + req.body.roleID + "')";
+    + req.body.name + "')";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ department: results });
+  })
+})
+
+app.post('/api/department/delete', (req, res) => {
+  var sql = "DELETE FROM department "
+    + "WHERE id_department='" + req.body.id_department + "'";
   connection.query(sql, function (err, results) {
     if (err) throw err;
     res.json({ news: results });
   });
 });
 
-app.post('/api/edit', (req, res) => {
-  var sql = "UPDATE account SET "
-    + "username='" + req.body.username + "',"
-    + "password='" + req.body.password + "',"
-    + "roleID='" + req.body.roleID + "'"
-    + "WHERE accountID='" + req.body.accountID + "'";
+app.post('/api/department/edit', (req, res) => {
+  var sql = "UPDATE department SET "
+    + "name='" + req.body.name + "'"
+    + "WHERE id_department='" + req.body.id_department + "'";
   connection.query(sql, function (err, results) {
     if (err) throw err;
     res.json({ news: results });
   });
 });
-app.post('/api/delete', (req, res) => {
-  var sql = "DELETE FROM account "
-    + "WHERE accountID='" + req.body.accountID + "'";
-  connection.query(sql, function (err, results) {
-    if (err) throw err;
-    res.json({ news: results });
-  });
-});
-app.listen(4000, () => console.log('App listening on port 4000'));
+
+app.listen(4000);

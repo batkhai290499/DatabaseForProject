@@ -1,81 +1,34 @@
-import React, { Component } from 'react';
-import axios from 'axios';
-import logo from '../logo.svg'
-import '../App.css';
+app.post('/api/insert', function (req, res) {
+  console.log(req.body)
+  var sql = "INSERT "
+    + "INTO account(username,password,roleID) "
+    + "VALUES('"
+    + req.body.username + "','"
+    + req.body.password + "','"
+    + req.body.roleID + "')";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ news: results });
+  });
+});
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      news: []
-    }
-  };
+app.post('/api/edit', (req, res) => {
+  var sql = "UPDATE account SET "
+    + "username='" + req.body.username + "',"
+    + "password='" + req.body.password + "',"
+    + "roleID='" + req.body.roleID + "'"
+    + "WHERE accountID='" + req.body.accountID + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ news: results });
+  });
+});
 
-  componentDidMount() {
-    axios.get('/api/news')
-      .then(res => {
-
-        if (res.status === 200) {
-          const news = res.data;
-          this.setState({ news: news.news });
-        }
-      })
-      .catch(error => console.log(error));
-  };
-
-  render() {
-    return (
-
-      <div className="App">
-        <header className="App-header">
-          <h1>{this.state.message}</h1>
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-        </p>
-          <ul>
-            {this.state.news.map((item, key) => (
-              <li key={key}>
-                <h2>{item.username}</h2>
-                <div>{item.roleID}</div>
-              </li>
-            ))}
-          </ul>
-        </header>
-
-        <div>
-          <h2>Add an item</h2>
-          <form onSubmit={this.handleInsertSubmit}>
-            <table>
-              <tbody>
-                
-
-                <tr>
-                  <th><label>Description</label></th>
-                  <td>
-                    <textarea
-                      name="description"
-                      onChange={this.handleInputChange} />
-                  </td>
-                </tr>
-
-                <tr>
-                  <th><label>Content</label></th>
-                  <td>
-                    <textarea
-                      name="content"
-                      onChange={this.handleInputChange} />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <button type="submit">Submit</button>
-          </form>
-        </div>
-      </div>
-    )
-  }
-};
-
-export default App;
+app.post('/api/delete', (req, res) => {
+  var sql = "DELETE FROM account "
+    + "WHERE accountID='" + req.body.accountID + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ news: results });
+  });
+});
