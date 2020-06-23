@@ -85,7 +85,7 @@ app.post('/api/department/delete', (req, res) => {
     + "WHERE id_department='" + req.body.id_department + "'";
   connection.query(sql, function (err, results) {
     if (err) throw err;
-    res.json({ news: results });
+    res.json({ department: results });
   });
 });
 
@@ -95,8 +95,130 @@ app.post('/api/department/edit', (req, res) => {
     + "WHERE id_department='" + req.body.id_department + "'";
   connection.query(sql, function (err, results) {
     if (err) throw err;
-    res.json({ news: results });
+    res.json({ department: results });
   });
 });
 
+
+//API in position table
+app.get('/api/position/views', (req,res) => {
+  var sql = "SELECT * FROM position";
+  connection.query(sql, function(err, result) {
+    if (err) throw err;
+    res.json({position: result});
+  })
+})
+app.post('/api/position/insert', (req, res) => {
+  var sql = "INSERT "
+    + "INTO `position`(`name`,`id_department`)"
+    + " VALUES ('"
+    + req.body.name + "','"
+    + req.body.id_department + "')";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ position: results });
+  })
+})
+
+app.post('/api/position/delete', (req, res) => {
+  var sql = "DELETE FROM position "
+    + "WHERE id_position='" + req.body.id_position + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ position: results });
+  });
+});
+
+app.post('/api/position/edit', (req, res) => {
+  var sql = "UPDATE position SET "
+    + "name='" + req.body.name + "',"
+    + "id_department ='" + req.body.id_department + "'"
+    + "WHERE id_position='" + req.body.id_position + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ position: results });
+  });
+});
+
+// API in Salary Table
+app.get('/api/salary/views', (req,res) => {
+  var sql = "SELECT * FROM salary";
+  connection.query(sql, function(err, result) {
+    if (err) throw err;
+    res.json({salary: result});
+  })
+})
+app.post('/api/salary/insert', (req, res) => {
+  var sql = "INSERT "
+    + "INTO `salary`(`money`,`id_position`)"
+    + " VALUES ('"
+    + req.body.money + "','"
+    + req.body.id_position + "')";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ salary: results });
+  })
+})
+
+app.post('/api/salary/delete', (req, res) => {
+  var sql = "DELETE FROM salary "
+    + "WHERE id_salary='" + req.body.id_salary + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ salary: results });
+  });
+});
+
+app.post('/api/salary/edit', (req, res) => {
+  var sql = "UPDATE salary SET "
+    + "money='" + req.body.money + "',"
+    + "id_position ='" + req.body.id_position + "'"
+    + "WHERE id_salary='" + req.body.id_salary + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ salary: results });
+  });
+});
+
+// API in Shift Table
+app.get('/api/shift/views', (req,res) => {
+  var sql = "SELECT * FROM shift";
+  connection.query(sql, function(err, result) {
+    if (err) throw err;
+    res.json({shift: result});
+  })
+})
+app.post('/api/shift/insert', (req, res) => {
+  var sql = "INSERT "
+    + "INTO `shift`(`name`,`time_in`,`time_out`)"
+    + " VALUES ('"
+    + req.body.name + "','"
+    + req.body.time_in + "','"
+    + req.body.time_out + "')";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ shift: results });
+  })
+})
+
+app.post('/api/shift/delete', (req, res) => {
+  var sql = "DELETE FROM shift "
+    + "WHERE id_shift='" + req.body.id_shift + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ shift: results });
+  });
+});
+
+app.post('/api/shift/edit', (req, res) => {
+  var sql = "UPDATE shift SET "
+    + "name='" + req.body.name + "',"
+    + "time_in ='" + req.body.time_in + "'"
+    + "time_out ='" + req.body.time_out + "'"
+    + "WHERE id_shift='" + req.body.id_shift + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ shift: results });
+  });
+});
 app.listen(4000);
