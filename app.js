@@ -40,7 +40,6 @@ const connection = mysql.createConnection({
 // });
 
 //API for login
-//SELECT * FROM account WHERE username= '$username' AND password= '$password'
 app.post('/api/account/login', (req, res) => {
   var sql = "SELECT * FROM account WHERE username='" + req.body.body.username + "' AND password='" + req.body.body.password + "'";
   connection.query(sql, function (err, results) {
@@ -52,13 +51,56 @@ app.post('/api/account/login', (req, res) => {
 
 // API in table Account (Need inner join to show some data in another table)
 app.get('/api/account/views', (req, res) => {
-  var sql = "SELECT * FROM account";
+  var sql = "SELECT account.username, account.password, account.name, account.age, account.address, account.phone, department.department_name, salary.money, shift.shift_name ,position.position_name , role.role_name FROM `account` INNER JOIN department ON account.id_department = department.id_department INNER JOIN salary ON account.id_salary = salary.id_salary INNER JOIN shift ON account.id_shift = shift.id_shift INNER JOIN position ON account.id_position = position.id_position INNER JOIN role ON account.id_role = role.id_role";
   connection.query(sql, function (err, results) {
     if (err) throw err;
     res.json({ news: results });
   });
 });
 
+app.get('/api/position/getAll', (req, res) => {
+  var sql = "SELECT * FROM position";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ position: results });
+  })
+})
+
+app.get('/api/salary/getAll', (req, res) => {
+  var sql = "SELECT * FROM salary";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ salary: results });
+  })
+})
+
+app.get('/api/shift/getAll', (req, res) => {
+  var sql = "SELECT * FROM shift";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ shift: results });
+  })
+})
+
+app.post('/api/user/insert', (req, res) => {
+  var sql = "INSERT "
+    + "INTO account(username,password,name,age,address,phone,id_department,id_salary,id_shift,id_position)"
+    + "VALUES('"
+    + req.body.username + "','"
+    + req.body.password + "','"
+    + req.body.name + "','"
+    + req.body.age + "','"
+    + req.body.address + "','"
+    + req.body.phone + "','"
+    + req.body.id_department + "','"
+    + req.body.id_salary + "','"
+    + req.body.id_shift + "','"
+    + req.body.id_position + "')";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ department: results });
+  })
+})
 //API in table Department
 
 app.get('/api/department/views', (req, res) => {
@@ -71,7 +113,7 @@ app.get('/api/department/views', (req, res) => {
 
 app.post('/api/department/insert', (req, res) => {
   var sql = "INSERT "
-    + "INTO department(name)"
+    + "INTO department(department_name)"
     + "VALUES('"
     + req.body.name + "')";
   connection.query(sql, function (err, results) {
@@ -91,7 +133,7 @@ app.post('/api/department/delete', (req, res) => {
 
 app.post('/api/department/edit', (req, res) => {
   var sql = "UPDATE department SET "
-    + "name='" + req.body.name + "'"
+    + "department_name='" + req.body.name + "'"
     + "WHERE id_department='" + req.body.id_department + "'";
   connection.query(sql, function (err, results) {
     if (err) throw err;
@@ -101,16 +143,16 @@ app.post('/api/department/edit', (req, res) => {
 
 
 //API in position table
-app.get('/api/position/views', (req,res) => {
-  var sql = "SELECT * FROM position";
-  connection.query(sql, function(err, result) {
+app.get('/api/position/views', (req, res) => {
+  var sql = "SELECT position.id_position, position.position_name, department.department_name FROM position INNER JOIN department ON position.id_department = department.id_department";
+  connection.query(sql, function (err, result) {
     if (err) throw err;
-    res.json({position: result});
+    res.json({ position: result });
   })
 })
 app.post('/api/position/insert', (req, res) => {
   var sql = "INSERT "
-    + "INTO `position`(`name`,`id_department`)"
+    + "INTO `position`(`position_name`,`id_department`)"
     + " VALUES ('"
     + req.body.name + "','"
     + req.body.id_department + "')";
@@ -131,7 +173,7 @@ app.post('/api/position/delete', (req, res) => {
 
 app.post('/api/position/edit', (req, res) => {
   var sql = "UPDATE position SET "
-    + "name='" + req.body.name + "',"
+    + "position_name='" + req.body.name + "',"
     + "id_department ='" + req.body.id_department + "'"
     + "WHERE id_position='" + req.body.id_position + "'";
   connection.query(sql, function (err, results) {
@@ -141,11 +183,11 @@ app.post('/api/position/edit', (req, res) => {
 });
 
 // API in Salary Table
-app.get('/api/salary/views', (req,res) => {
-  var sql = "SELECT * FROM salary";
-  connection.query(sql, function(err, result) {
+app.get('/api/salary/views', (req, res) => {
+  var sql = "SELECT salary.money, position.position_name FROM salary INNER JOIN position ON salary.id_position = position.id_position";
+  connection.query(sql, function (err, result) {
     if (err) throw err;
-    res.json({salary: result});
+    res.json({ salary: result });
   })
 })
 app.post('/api/salary/insert', (req, res) => {
@@ -181,16 +223,16 @@ app.post('/api/salary/edit', (req, res) => {
 });
 
 // API in Shift Table
-app.get('/api/shift/views', (req,res) => {
+app.get('/api/shift/views', (req, res) => {
   var sql = "SELECT * FROM shift";
-  connection.query(sql, function(err, result) {
+  connection.query(sql, function (err, result) {
     if (err) throw err;
-    res.json({shift: result});
+    res.json({ shift: result });
   })
 })
 app.post('/api/shift/insert', (req, res) => {
   var sql = "INSERT "
-    + "INTO `shift`(`name`,`time_in`,`time_out`)"
+    + "INTO `shift`(`shift_name`,`time_in`,`time_out`)"
     + " VALUES ('"
     + req.body.name + "','"
     + req.body.time_in + "','"
