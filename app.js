@@ -213,7 +213,7 @@ app.post('/api/shift/delete', (req, res) => {
 app.post('/api/shift/edit', (req, res) => {
   var sql = "UPDATE shift SET "
     + "name='" + req.body.name + "',"
-    + "time_in ='" + req.body.time_in + "'"
+    + "time_in ='" + req.body.time_in + "',"
     + "time_out ='" + req.body.time_out + "'"
     + "WHERE id_shift='" + req.body.id_shift + "'";
   connection.query(sql, function (err, results) {
