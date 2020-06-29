@@ -74,6 +74,22 @@ app.get('/api/salary/getAll', (req, res) => {
   })
 })
 
+app.get('/api/department/getAll', (req, res) => {
+  var sql = "SELECT * FROM department";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ department: results });
+  })
+})
+
+app.get('/api/role/getAll', (req, res) => {
+  var sql = "SELECT * FROM role";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ role: results });
+  })
+})
+
 app.get('/api/shift/getAll', (req, res) => {
   var sql = "SELECT * FROM shift";
   connection.query(sql, function (err, results) {
@@ -84,7 +100,7 @@ app.get('/api/shift/getAll', (req, res) => {
 
 app.post('/api/user/insert', (req, res) => {
   var sql = "INSERT "
-    + "INTO account(username,password,name,age,address,phone,id_department,id_salary,id_shift,id_position)"
+    + "INTO account(username,password,name,age,address,phone,id_department,id_salary,id_shift,id_position,id_role)"
     + "VALUES('"
     + req.body.username + "','"
     + req.body.password + "','"
@@ -95,7 +111,8 @@ app.post('/api/user/insert', (req, res) => {
     + req.body.id_department + "','"
     + req.body.id_salary + "','"
     + req.body.id_shift + "','"
-    + req.body.id_position + "')";
+    + req.body.id_position + "','"
+    + req.body.id_role + "')";
   connection.query(sql, function (err, results) {
     if (err) throw err;
     res.json({ department: results });
@@ -123,7 +140,7 @@ app.post('/api/department/insert', (req, res) => {
 })
 
 app.post('/api/department/delete', (req, res) => {
-  var sql = "DELETE FROM department "
+  var sql = "DELETE FROM `department` "
     + "WHERE id_department='" + req.body.id_department + "'";
   connection.query(sql, function (err, results) {
     if (err) throw err;
@@ -184,7 +201,7 @@ app.post('/api/position/edit', (req, res) => {
 
 // API in Salary Table
 app.get('/api/salary/views', (req, res) => {
-  var sql = "SELECT salary.money, position.position_name FROM salary INNER JOIN position ON salary.id_position = position.id_position";
+  var sql = "SELECT id_salary ,salary.money, position.position_name, position.id_position FROM salary INNER JOIN position ON salary.id_position = position.id_position";
   connection.query(sql, function (err, result) {
     if (err) throw err;
     res.json({ salary: result });
@@ -219,6 +236,8 @@ app.post('/api/salary/edit', (req, res) => {
   connection.query(sql, function (err, results) {
     if (err) throw err;
     res.json({ salary: results });
+    console.log(sql);
+
   });
 });
 
