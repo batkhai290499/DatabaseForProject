@@ -314,4 +314,28 @@ app.post('/api/shift/edit', (req, res) => {
     res.json({ shift: results });
   });
 });
+
+//API view Attendance
+app.get('/api/attendance/views', (req, res) => {
+  var sql = "SELECT attendance.id_attendance, account.id_account, account.name ,shift.id_shift, shift.shift_name ,attendance.date ,attendance.time_in, attendance.time_out FROM attendance INNER JOIN account ON attendance.id_account = account.id_account INNER JOIN shift ON attendance.id_shift = shift.id_shift ";
+  connection.query(sql, function (err, result) {
+    if (err) throw err;
+    res.json({ attendance: result });
+  })
+})
+
+app.post('/api/attendance/insert/(:id_account)', (req, res) => {
+  const id_account = req.params.id_account
+  var sql = "INSERT "
+    + "INTO `attendance`(`id_account`,`id_shift`,`time_in`,`date`)"
+    + " VALUES ('"
+    + id_account + "','"
+    + req.body.id_shift + "','"
+    + req.body.time_in + "','"
+    + req.body.date + "')";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ attendance: results });
+  })
+})
 app.listen(4000);
