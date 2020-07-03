@@ -60,7 +60,7 @@ app.get('/api/account/views', (req, res) => {
 
 app.get('/api/account/getById/(:id_account)', (req, res) => {
   const id_account = req.params.id_account
-  var sql = "SELECT account.id_account,account.username, account.password, account.name, account.age, account.address, account.phone, department.department_name, department.id_department, salary.money, salary.id_salary, shift.shift_name,shift.id_shift, position.position_name, position.id_position, role.role_name, role.id_role FROM `account` INNER JOIN department ON account.id_department = department.id_department INNER JOIN salary ON account.id_salary = salary.id_salary INNER JOIN shift ON account.id_shift = shift.id_shift INNER JOIN position ON account.id_position = position.id_position INNER JOIN role ON account.id_role = role.id_role WHERE id_account ='" + id_account + "'";;
+  var sql = "SELECT account.id_account,account.username, account.password, account.name, account.age, account.address, account.phone, department.department_name, department.id_department, salary.money, salary.id_salary, shift.shift_name,shift.id_shift, position.position_name, position.id_position, role.role_name, role.id_role FROM `account` INNER JOIN department ON account.id_department = department.id_department INNER JOIN salary ON account.id_salary = salary.id_salary INNER JOIN shift ON account.id_shift = shift.id_shift INNER JOIN position ON account.id_position = position.id_position INNER JOIN role ON account.id_role = role.id_role WHERE id_account ='" + id_account + "'";
   connection.query(sql, function (err, results) {
     if (err) throw err;
     res.json( results);
@@ -316,26 +316,37 @@ app.post('/api/shift/edit', (req, res) => {
 });
 
 //API view Attendance
-app.get('/api/attendance/views', (req, res) => {
-  var sql = "SELECT attendance.id_attendance, account.id_account, account.name ,shift.id_shift, shift.shift_name ,attendance.date ,attendance.time_in, attendance.time_out FROM attendance INNER JOIN account ON attendance.id_account = account.id_account INNER JOIN shift ON attendance.id_shift = shift.id_shift ";
+app.get('/api/attendance/views/(:id_account)', (req, res) => {
+  const id_account = req.params.id_account
+  var sql = "SELECT attendance.id_attendance, account.id_account, account.name ,shift.id_shift, shift.shift_name ,attendance.date ,attendance.time_in, attendance.time_out FROM attendance INNER JOIN account ON attendance.id_account = account.id_account INNER JOIN shift ON attendance.id_shift = shift.id_shift WHERE attendance.id_account ='" + id_account + "'";
   connection.query(sql, function (err, result) {
     if (err) throw err;
     res.json({ attendance: result });
   })
 })
 
-app.post('/api/attendance/insert/(:id_account)', (req, res) => {
-  const id_account = req.params.id_account
+app.post('/api/attendance/insert', (req, res) => {
   var sql = "INSERT "
-    + "INTO `attendance`(`id_account`,`id_shift`,`time_in`,`date`)"
+    + "INTO `attendance`(`id_account`,`id_shift`,`date`,`time_in`)"
     + " VALUES ('"
-    + id_account + "','"
+    + req.body.id_account + "','"
     + req.body.id_shift + "','"
-    + req.body.time_in + "','"
-    + req.body.date + "')";
+    + req.body.date + "','"
+    + req.body.time_in + "')";
   connection.query(sql, function (err, results) {
     if (err) throw err;
     res.json({ attendance: results });
   })
 })
+
+
+app.post('/api/attendance/edit', (req, res) => {
+  var sql = "UPDATE attendance SET "
+    + "time_out ='" + req.body.time_out + "'"
+    + "WHERE id_attendance='" + req.body.id_attendance + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ attendance: results });
+  });
+});
 app.listen(4000);
