@@ -325,6 +325,14 @@ app.get('/api/attendance/views/(:id_account)', (req, res) => {
   })
 })
 
+app.get('/api/attendance/views', (req, res) => {
+  var sql = "SELECT attendance.id_attendance, account.id_account, account.name ,shift.id_shift, shift.shift_name ,attendance.date ,attendance.time_in, attendance.time_out FROM attendance INNER JOIN account ON attendance.id_account = account.id_account INNER JOIN shift ON attendance.id_shift = shift.id_shift ORDER BY attendance.id_account ASC";
+  connection.query(sql, function (err, result) {
+    if (err) throw err;
+    res.json({ attendanceAll: result });
+  })
+})
+
 app.post('/api/attendance/insert', (req, res) => {
   var sql = "INSERT "
     + "INTO `attendance`(`id_account`,`id_shift`,`date`,`time_in`)"
