@@ -372,13 +372,21 @@ app.post('/api/attendance/edit', (req, res) => {
 //SELECT chat.id_chat, account.id_account, account.name, chat.content, chat.time FROM chat INNER JOIN account ON chat.chat_from = account.id_account WHERE chat_to IN (1,4) AND chat.chat_from IN (4,1) ORDER BY chat.time ASC
 
 //API Chat 1:1 
-app.get('/api/chat/views', (req, res) => {
-  var sql = "SELECT attendance.id_attendance, account.id_account, account.name ,shift.id_shift, shift.shift_name ,attendance.date ,attendance.time_in, attendance.time_out FROM attendance INNER JOIN account ON attendance.id_account = account.id_account INNER JOIN shift ON attendance.id_shift = shift.id_shift ORDER BY attendance.id_account ASC";
+app.get('/api/chat/views/(:id_account_to)/(:id_account_from)', (req, res) => {
+  const id_account_to = req.params.id_account_to
+  const id_account_from = req.params.id_account_from
+  var sql = "SELECT chat.id_chat, account.id_account, account.name, chat.content, chat.time FROM chat "
+    + "INNER JOIN account ON chat.chat_from = account.id_account "
+    + "WHERE chat_to IN ('" + id_account_to + "', '" + id_account_from + "') AND chat.chat_from IN ('" + id_account_from + "','" + id_account_to + "')"
+    + "ORDER BY chat.time ASC";
   connection.query(sql, function (err, result) {
     if (err) throw err;
-    res.json({ attendanceAll: result });
+    console.log(sql);
+    
+    res.json({ message: result });
   })
 })
+
 app.post('/api/chat/insert', (req, res) => {
   var sql = "INSERT "
     + "INTO `chat`(`chat_to`,`chat_from`,`content`,`time`)"
