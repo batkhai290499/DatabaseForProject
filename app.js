@@ -370,7 +370,6 @@ app.post('/api/attendance/edit', (req, res) => {
 });
 
 //SELECT chat.id_chat, account.id_account, account.name, chat.content, chat.time FROM chat INNER JOIN account ON chat.chat_from = account.id_account WHERE chat_to IN (1,4) AND chat.chat_from IN (4,1) ORDER BY chat.time ASC
-
 //API Chat 1:1 
 app.get('/api/chat/views/(:id_account_to)/(:id_account_from)', (req, res) => {
   const id_account_to = req.params.id_account_to
@@ -378,25 +377,33 @@ app.get('/api/chat/views/(:id_account_to)/(:id_account_from)', (req, res) => {
   var sql = "SELECT chat.id_chat, account.id_account, account.name, chat.content, chat.time FROM chat "
     + "INNER JOIN account ON chat.chat_from = account.id_account "
     + "WHERE chat_to IN ('" + id_account_to + "', '" + id_account_from + "') AND chat.chat_from IN ('" + id_account_from + "','" + id_account_to + "')"
-    + "ORDER BY chat.time ASC";
+    + "ORDER BY chat.time DESC";
   connection.query(sql, function (err, result) {
+    
     if (err) throw err;
+    console.log("----------------------------");
+
     console.log(sql);
+    
     
     res.json({ message: result });
   })
 })
 
-app.post('/api/chat/insert', (req, res) => {
+app.post('/api/chat/insert/(:id_account_to)/(:id_account_from)', (req, res) => {
+  const id_account_to = req.params.id_account_to
+  const id_account_from = req.params.id_account_from
   var sql = "INSERT "
     + "INTO `chat`(`chat_to`,`chat_from`,`content`,`time`)"
     + " VALUES ('"
-    + req.body.chat_to + "','"
-    + req.body.chat_from + "','"
+    + id_account_to + "','"
+    + id_account_from  + "','"
     + req.body.content + "','"
     + req.body.time + "')";
   connection.query(sql, function (err, results) {
     if (err) throw err;
+    console.log("----------------------------");
+    console.log(sql);
     res.json({ message: results });
   })
 })
