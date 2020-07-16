@@ -41,12 +41,7 @@ const connection = mysql.createConnection({
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 // console.log(io);
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
-});
+
 
 
 app.get('/test', (req, res) => {
@@ -379,13 +374,13 @@ app.get('/api/chat/views/(:id_account_to)/(:id_account_from)', (req, res) => {
     + "WHERE chat_to IN ('" + id_account_to + "', '" + id_account_from + "') AND chat.chat_from IN ('" + id_account_from + "','" + id_account_to + "')"
     + "ORDER BY chat.time DESC";
   connection.query(sql, function (err, result) {
-    
-    if (err) throw err;
-    console.log("----------------------------");
 
-    console.log(sql);
-    
-    
+    if (err) throw err;
+    // console.log("----------------------------");
+
+    // console.log(sql);
+
+
     res.json({ message: result });
   })
 })
@@ -397,14 +392,28 @@ app.post('/api/chat/insert/(:id_account_to)/(:id_account_from)', (req, res) => {
     + "INTO `chat`(`chat_to`,`chat_from`,`content`,`time`)"
     + " VALUES ('"
     + id_account_to + "','"
-    + id_account_from  + "','"
-    + req.body.content + "','"
-    + req.body.time + "')";
+    + id_account_from + "','"
+    + req.body.content + "',"
+    + req.body.time + ")";
+  console.log(sql);
   connection.query(sql, function (err, results) {
     if (err) throw err;
-    console.log("----------------------------");
-    console.log(sql);
+    // io.to(id_account_from).emit('message', "let's play a game");
+    // console.log(io.to(id_account_from).emit('message', "let's play a game"));
+    io.on("connection", function (socket) {
+      socket.on("disconnect", function () {
+        console.log('disconnect');
+      });
+      //server lắng nghe dữ liệu từ client
+      socket.on("Client-sent-data", function (data) {
+        //sau khi lắng nghe dữ liệu, server phát lại dữ liệu này đến các client khác
+        socket.emit("Server-sent-data", data);
+        console.log(data);
+        //fucking awesomeeeeeeeeeeeeeeeeeee. yeahhhhhhhhhhhhhhhhhhhhhh !!!!!!!!
+      });
+    });
     res.json({ message: results });
   })
+
 })
 server.listen(4000, () => console.log('Server running in port '));
