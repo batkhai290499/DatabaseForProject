@@ -400,20 +400,21 @@ app.post('/api/chat/insert/(:id_account_to)/(:id_account_from)', (req, res) => {
     if (err) throw err;
     // io.to(id_account_from).emit('message', "let's play a game");
     // console.log(io.to(id_account_from).emit('message', "let's play a game"));
-    io.on("connection", function (socket) {
-      socket.on("disconnect", function () {
-        console.log('disconnect');
-      });
-      //server lắng nghe dữ liệu từ client
-      socket.on("Client-sent-data", function (data) {
-        //sau khi lắng nghe dữ liệu, server phát lại dữ liệu này đến các client khác
-        socket.emit("Server-sent-data", data);
-        console.log(data);
-        //fucking awesomeeeeeeeeeeeeeeeeeee. yeahhhhhhhhhhhhhhhhhhhhhh !!!!!!!!
-      });
-    });
+    
     res.json({ message: results });
   })
 
 })
+io.on("connection", function (socket) {
+  socket.on("disconnect", function () {
+    console.log('disconnect');
+  });
+  //server lắng nghe dữ liệu từ client
+  socket.on("Client-sent-data", function (data) {
+    //sau khi lắng nghe dữ liệu, server phát lại dữ liệu này đến các client khác
+    socket.emit("Server-sent-data", data);
+    console.log(data);
+    //fucking awesomeeeeeeeeeeeeeeeeeee. yeahhhhhhhhhhhhhhhhhhhhhh !!!!!!!!
+  });
+});
 server.listen(4000, () => console.log('Server running in port '));
