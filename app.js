@@ -42,12 +42,6 @@ var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 // console.log(io);
 
-
-
-app.get('/test', (req, res) => {
-  res.json("Home page. Server running okay.");
-});
-
 //API for login
 app.post('/api/account/login', (req, res) => {
   var sql = "SELECT * FROM account WHERE username='" + req.body.body.username + "' AND password='" + req.body.body.password + "'";
@@ -369,10 +363,10 @@ app.post('/api/attendance/edit', (req, res) => {
 app.get('/api/chat/views/(:id_account_to)/(:id_account_from)', (req, res) => {
   const id_account_to = req.params.id_account_to
   const id_account_from = req.params.id_account_from
-  var sql = "SELECT chat.id_chat, account.id_account, account.name, chat.content, chat.time FROM chat "
+  var sql = "SELECT chat.id_chat, chat.chat_to, chat.chat_from, account.id_account, chat.content, chat.time FROM chat "
     + "INNER JOIN account ON chat.chat_from = account.id_account "
     + "WHERE chat_to IN ('" + id_account_to + "', '" + id_account_from + "') AND chat.chat_from IN ('" + id_account_from + "','" + id_account_to + "')"
-    + "ORDER BY chat.time DESC";
+    + "ORDER BY chat.time ASC";
   connection.query(sql, function (err, result) {
 
     if (err) throw err;
@@ -393,28 +387,28 @@ app.post('/api/chat/insert/(:id_account_to)/(:id_account_from)', (req, res) => {
     + " VALUES ('"
     + id_account_to + "','"
     + id_account_from + "','"
-    + req.body.content + "',"
-    + req.body.time + ")";
+    + req.body.content + "','"
+    + req.body.time + "')";
   console.log(sql);
   connection.query(sql, function (err, results) {
     if (err) throw err;
     // io.to(id_account_from).emit('message', "let's play a game");
     // console.log(io.to(id_account_from).emit('message', "let's play a game"));
-    
+
+    // console.log('send data to socket client', req.body.content);
+    //io.emit("Server-sent-data", req.body.content);
+
+    room = id_account_to + "," + id_account_from;
+    io.sockets.in(room).emit('message', req.body);
+    // this message will NOT go to the client defined above
     res.json({ message: results });
   })
 
 })
 io.on("connection", function (socket) {
-  socket.on("disconnect", function () {
-    console.log('disconnect');
-  });
-  //server lắng nghe dữ liệu từ client
-  socket.on("Client-sent-data", function (data) {
-    //sau khi lắng nghe dữ liệu, server phát lại dữ liệu này đến các client khác
-    socket.emit("Server-sent-data", data);
-    console.log(data);
-    //fucking awesomeeeeeeeeeeeeeeeeeee. yeahhhhhhhhhhhhhhhhhhhhhh !!!!!!!!
+  socket.on('room', function (room) {
+    socket.join(room);
   });
 });
+
 server.listen(4000, () => console.log('Server running in port '));
