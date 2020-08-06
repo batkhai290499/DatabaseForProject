@@ -392,15 +392,8 @@ app.post('/api/chat/insert/(:id_account_to)/(:id_account_from)', (req, res) => {
   console.log(sql);
   connection.query(sql, function (err, results) {
     if (err) throw err;
-    // io.to(id_account_from).emit('message', "let's play a game");
-    // console.log(io.to(id_account_from).emit('message', "let's play a game"));
-
-    // console.log('send data to socket client', req.body.content);
-    //io.emit("Server-sent-data", req.body.content);
-
     room = id_account_to + "," + id_account_from;
-    io.sockets.in(room).emit('message', req.body);
-    // this message will NOT go to the client defined above
+    io.to(room).emit('message', req.body);
     res.json({ message: results });
   })
 
