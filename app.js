@@ -70,6 +70,15 @@ app.get('/api/account/getById/(:id_account)', (req, res) => {
   });
 });
 
+app.post('/api/account/delete', (req, res) => {
+  var sql = "DELETE FROM account "
+    + "WHERE id_account='" + req.body.id_account + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ position: results });
+  });
+});
+
 app.get('/api/position/getAll', (req, res) => {
   var sql = "SELECT * FROM position";
   connection.query(sql, function (err, results) {
@@ -404,4 +413,44 @@ io.on("connection", function (socket) {
   });
 });
 
+
+//API in table Producer
+
+app.get('/api/producer/views', (req, res) => {
+  var sql = "SELECT * FROM producer";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ producer: results });
+  })
+})
+
+app.post('/api/producer/insert', (req, res) => {
+  var sql = "INSERT "
+    + "INTO producer(producer_name)"
+    + "VALUES('"
+    + req.body.name + "')";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ producer: results });
+  })
+})
+
+app.post('/api/producer/delete', (req, res) => {
+  var sql = "DELETE FROM `producer` "
+    + "WHERE id_producer='" + req.body.id_producer + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ producer: results });
+  });
+});
+
+app.post('/api/producer/edit', (req, res) => {
+  var sql = "UPDATE producer SET "
+    + "producer_name='" + req.body.name + "'"
+    + "WHERE id_producer='" + req.body.id_producer + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ producer: results });
+  });
+});
 server.listen(4000, () => console.log('Server running in port '));
