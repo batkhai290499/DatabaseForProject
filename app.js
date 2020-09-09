@@ -2,6 +2,9 @@ const express = require('express');
 const mysql = require('mysql');
 const app = express();
 const bodyParser = require('body-parser');
+const { listen } = require('socket.io');
+const multer = require('multer');
+const path = require('path');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -417,7 +420,7 @@ io.on("connection", function (socket) {
 });
 
 
-//API in table Producer
+//API in table Producer (not yet)
 
 app.get('/api/producer/views', (req, res) => {
   var sql = "SELECT * FROM producer";
@@ -456,4 +459,50 @@ app.post('/api/producer/edit', (req, res) => {
     res.json({ producer: results });
   });
 });
-server.listen(4000, () => console.log('Server running in port '));
+
+//API in table Mission
+app.get('/api/mission/viewsAllEmployee', (req, res) => {
+  var sql = "SELECT id_account, name FROM account";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ employee: results });
+  })
+})
+
+
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads');
+  },
+  filename: (req, file, cb) => {
+    console.log(file);
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype == 'image/jpeg' || file.mimetype == 'image/png/jpg') {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+}
+const upload = multer({ storage: storage, fileFilter: fileFilter });
+
+//Upload route
+app.post('/upload', upload.single('image'), (req, res) => {
+  var sql = "INSERT "
+    + "INTO mission(`name_file`, `comment`, `id_account`, `title`)"
+    + " VALUES ('"
+    + req.body.name_file + "','"
+    + req.body.comment + "','"
+    + req.body.id_account + "','"
+    + req.body.title + "')";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ mission: results });
+  })
+});
+
+server.listen(4000, () => console.log('Server running in port'));
