@@ -469,7 +469,7 @@ app.get('/api/mission/viewsAllEmployee', (req, res) => {
   })
 })
 
-
+//Upload route
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 const storage = multer.diskStorage({
@@ -478,7 +478,8 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     console.log(file);
-    cb(null, Date.now() + path.extname(file.originalname));
+    console.log(path.extname(file.originalname));
+    cb(null, file.originalname + path.extname(file.originalname));
   }
 });
 const fileFilter = (req, file, cb) => {
@@ -490,7 +491,7 @@ const fileFilter = (req, file, cb) => {
 }
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-//Upload route
+
 app.post('/upload', upload.single('image'), (req, res) => {
   var sql = "INSERT "
     + "INTO mission(`name_file`, `comment`, `id_account`, `title`)"
@@ -504,5 +505,13 @@ app.post('/upload', upload.single('image'), (req, res) => {
     res.json({ mission: results });
   })
 });
+
+app.get('/api/mission/viewsAllmission', (req, res) => {
+  var sql = "SELECT * FROM mission";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ mission: results });
+  })
+})
 
 server.listen(4000, () => console.log('Server running in port'));
