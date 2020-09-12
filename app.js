@@ -334,7 +334,7 @@ app.post('/api/shift/edit', (req, res) => {
 });
 
 //API in Attendance
-app.get('/api/attendance/views/(:id_account)', (req, res) => {
+app.get('/api/attendances/views/(:id_account)', (req, res) => {
   const id_account = req.params.id_account
   var sql = "SELECT attendance.id_attendance, account.id_account, account.name ,shift.id_shift, shift.shift_name ,attendance.date ,attendance.time_in, attendance.time_out FROM attendance INNER JOIN account ON attendance.id_account = account.id_account INNER JOIN shift ON attendance.id_shift = shift.id_shift WHERE attendance.id_account ='" + id_account + "'";
   connection.query(sql, function (err, result) {
@@ -343,7 +343,10 @@ app.get('/api/attendance/views/(:id_account)', (req, res) => {
   })
 })
 app.get('/api/attendance/views', (req, res) => {
-  var sql = "SELECT attendance.id_attendance, account.id_account, account.name ,shift.id_shift, shift.shift_name ,attendance.date ,attendance.time_in, attendance.time_out FROM attendance INNER JOIN account ON attendance.id_account = account.id_account INNER JOIN shift ON attendance.id_shift = shift.id_shift ORDER BY attendance.id_account ASC";
+  var sql = "SELECT attendance.id_attendance, attendance.id_account, attendance.id_shift, attendance.date, attendance.time_in,account.name, "
+  + "(SELECT salary.money FROM `salary` INNER JOIN account ON salary.id_salary = account.id_salary WHERE account.id_account = attendance.id_account) AS salary,attendance.time_out "
+  + "FROM `attendance`" 
+  + "INNER JOIN account ON attendance.id_account = account.id_account ORDER BY attendance.id_account ASC";
   connection.query(sql, function (err, result) {
     if (err) throw err;
     res.json({ attendanceAll: result });
@@ -477,29 +480,35 @@ const storage = multer.diskStorage({
     cb(null, 'uploads');
   },
   filename: (req, file, cb) => {
-    console.log(file);
-    console.log(path.extname(file.originalname));
-    cb(null, file.originalname + path.extname(file.originalname));
+    // console.log(file);
+    // console.log("---");
+    // console.log(path.extname(file.originalname));
+    cb(null, file.originalname);
   }
 });
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype == 'image/jpeg' || file.mimetype == 'image/png/jpg') {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
+  // console.log(file);
+  // if (file.mimetype == 'pdf/jpeg' || file.mimetype == 'pdf/png/jpg') {
+
+  // } else {
+  //   cb(null, false);
+  // }
+  cb(null, true);
 }
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 
 app.post('/upload', upload.single('image'), (req, res) => {
   var sql = "INSERT "
-    + "INTO mission(`name_file`, `comment`, `id_account`, `title`)"
+    + "INTO mission(`name_file`, `comment`, `id_account`, `title`,`start_time`,	`end_time`	,`status`	)"
     + " VALUES ('"
     + req.body.name_file + "','"
     + req.body.comment + "','"
     + req.body.id_account + "','"
-    + req.body.title + "')";
+    + req.body.title + "','"
+    + req.body.start_time + "','"
+    + req.body.end_time + "','"
+    + req.body.status + "')";
   connection.query(sql, function (err, results) {
     if (err) throw err;
     res.json({ mission: results });
@@ -507,11 +516,39 @@ app.post('/upload', upload.single('image'), (req, res) => {
 });
 
 app.get('/api/mission/viewsAllmission', (req, res) => {
-  var sql = "SELECT * FROM mission";
+  var sql = "SELECT mission.id_mission, mission.title, mission.comment, account.name, mission.name_file, mission.start_time, mission.end_time, status_mission.status FROM `mission` INNER JOIN status_mission ON status_mission.id_status_mission = mission.status INNER JOIN account ON account.id_account = mission.id_account";
   connection.query(sql, function (err, results) {
     if (err) throw err;
     res.json({ mission: results });
   })
 })
 
+app.get('/api/mission/viewsMissionByName/(:name)', (req, res) => {
+  const name = req.params.name
+  var sql = "SELECT mission.id_mission, mission.title, mission.comment, account.name, mission.name_file, mission.start_time, mission.end_time, status_mission.status FROM `mission` INNER JOIN status_mission ON status_mission.id_status_mission = mission.status INNER JOIN account ON account.id_account = mission.id_account WHERE account.name = '" + name + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ MissionEmployee: results });
+  })
+})
+
+app.get('/api/mission/getById/(:id_mission)', (req, res) => {
+  const id_mission = req.params.id_mission
+  var sql = "SELECT mission.id_mission, mission.title, mission.comment, account.name, mission.name_file, mission.start_time, mission.end_time, status_mission.status FROM `mission` INNER JOIN status_mission ON status_mission.id_status_mission = mission.status INNER JOIN account ON account.id_account = mission.id_account WHERE mission.id_mission = '" + id_mission + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ MissionById: results });
+  })
+})
+
+
+app.post('/api/mission/updateByEmployee', (req, res) => {
+  var sql = "UPDATE Mission SET "
+    + "status ='" + req.body.status + "'"
+    + "WHERE id_mission='" + req.body.id_mission + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ MissionByEmployee: results });
+  });
+});
 server.listen(4000, () => console.log('Server running in port'));
