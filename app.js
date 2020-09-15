@@ -342,11 +342,13 @@ app.get('/api/attendances/views/(:id_account)', (req, res) => {
     res.json({ attendance: result });
   })
 })
-app.get('/api/attendance/views', (req, res) => {
+app.get('/api/attendance/views/(:id_account)', (req, res) => {
+  const id_account = req.params.id_account
   var sql = "SELECT attendance.id_attendance, attendance.id_account, attendance.id_shift, attendance.date, attendance.time_in,account.name, "
-  + "(SELECT salary.money FROM `salary` INNER JOIN account ON salary.id_salary = account.id_salary WHERE account.id_account = attendance.id_account) AS salary,attendance.time_out "
-  + "FROM `attendance`" 
-  + "INNER JOIN account ON attendance.id_account = account.id_account ORDER BY attendance.id_account ASC";
+    + "(SELECT salary.money FROM `salary` INNER JOIN account ON salary.id_salary = account.id_salary WHERE account.id_account = attendance.id_account) AS salary,attendance.time_out "
+    + "FROM `attendance`"
+    + "INNER JOIN account ON attendance.id_account = account.id_account  "
+    + " WHERE account.id_account =  " + id_account + " ORDER BY attendance.id_account ASC";
   connection.query(sql, function (err, result) {
     if (err) throw err;
     res.json({ attendanceAll: result });
@@ -375,6 +377,7 @@ app.post('/api/attendance/edit', (req, res) => {
     res.json({ attendance: results });
   });
 });
+
 
 //SELECT chat.id_chat, account.id_account, account.name, chat.content, chat.time FROM chat INNER JOIN account ON chat.chat_from = account.id_account WHERE chat_to IN (1,4) AND chat.chat_from IN (4,1) ORDER BY chat.time ASC
 //API Chat 1:1 
@@ -532,16 +535,23 @@ app.get('/api/mission/viewsMissionByName/(:name)', (req, res) => {
   })
 })
 
-app.get('/api/mission/getById/(:id_mission)', (req, res) => {
-  const id_mission = req.params.id_mission
-  var sql = "SELECT mission.id_mission, mission.title, mission.comment, account.name, mission.name_file, mission.start_time, mission.end_time, status_mission.status FROM `mission` INNER JOIN status_mission ON status_mission.id_status_mission = mission.status INNER JOIN account ON account.id_account = mission.id_account WHERE mission.id_mission = '" + id_mission + "'";
+app.get('/api/mission/getByIdAccount/(:id_account)', (req, res) => {
+  const id_account = req.params.id_account
+  var sql = "SELECT mission.id_mission, mission.title, mission.comment, account.name, mission.name_file, mission.start_time, mission.end_time, status_mission.status FROM `mission` INNER JOIN status_mission ON status_mission.id_status_mission = mission.status INNER JOIN account ON account.id_account = mission.id_account WHERE mission.id_account ='" + id_account + "'";
   connection.query(sql, function (err, results) {
     if (err) throw err;
-    res.json({ MissionById: results });
+    res.json({ MissionByIdAccount: results });
   })
 })
 
-
+app.get('/api/mission/getByIdMission/(:id_mission)', (req, res) => {
+  const id_mission = req.params.id_mission
+  var sql = "SELECT mission.id_mission, mission.title, mission.comment, account.name, mission.name_file, mission.start_time, mission.end_time, status_mission.status FROM `mission` INNER JOIN status_mission ON status_mission.id_status_mission = mission.status INNER JOIN account ON account.id_account = mission.id_account WHERE mission.id_mission ='" + id_mission + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ MissionByIdMission: results });
+  })
+})
 app.post('/api/mission/updateByEmployee', (req, res) => {
   var sql = "UPDATE Mission SET "
     + "status ='" + req.body.status + "'"
