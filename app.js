@@ -299,6 +299,16 @@ app.get('/api/shift/views', (req, res) => {
     res.json({ shift: result });
   })
 })
+
+app.get('/api/shift/viewById/(:id_account)', (req, res) => {
+  const id_account = req.params.id_account
+  var sql = "SELECT shift.id_shift, shift.shift_name, shift.time_in, shift.time_out , account.id_account FROM `account` INNER JOIN shift ON account.id_shift =shift.id_shift WHERE account.id_account = '" + id_account + "'";
+  connection.query(sql, function (err, result) {
+    if (err) throw err;
+    res.json({ shift: result });
+  })
+})
+
 app.post('/api/shift/insert', (req, res) => {
   var sql = "INSERT "
     + "INTO `shift`(`shift_name`,`time_in`,`time_out`)"
@@ -552,6 +562,7 @@ app.get('/api/mission/getByIdMission/(:id_mission)', (req, res) => {
     res.json({ MissionByIdMission: results });
   })
 })
+
 app.post('/api/mission/updateByEmployee', (req, res) => {
   var sql = "UPDATE Mission SET "
     + "status ='" + req.body.status + "'"
@@ -561,4 +572,51 @@ app.post('/api/mission/updateByEmployee', (req, res) => {
     res.json({ MissionByEmployee: results });
   });
 });
+
+//API  in Resign
+
+app.post('/api/resign/insert/(:id_account)', (req, res) => {
+  const id_account = req.params.id_account
+  var sql = "INSERT "
+    + "INTO resign( `title`, `content`, `id_account`, `date`, `status`)"
+    + "VALUES('"
+    + req.body.title + "','"
+    + req.body.content + "','"
+    + id_account + "','"
+    + req.body.date + "','"
+    + req.body.status + "')";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ resign: results });
+  })
+})
+
+app.get('/api/resign/views', (req, res) => {
+  var sql = "SELECT * FROM resign";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ resign: results });
+  })
+})
+
+app.post('/api/resign/edit', (req, res) => {
+  var sql = "UPDATE resign SET "
+    + "status='" + req.body.status + "'"
+    + "WHERE id_resign='" + req.body.id_resign + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ resign: results });
+  });
+});
+
+app.get('/api/resign/viewsById/(:id_account)', (req, res) => {
+  const id_account = req.params.id_account
+  var sql = "SELECT * FROM resign WHERE resign.id_account ='" + id_account + "'";
+  connection.query(sql, function (err, results) {
+    if (err) throw err;
+    res.json({ resignById: results });
+  })
+})
+
+
 server.listen(4000, () => console.log('Server running in port'));
