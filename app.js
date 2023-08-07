@@ -15,7 +15,7 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'project'
+    database: 'project2'
 });
 // Add headers
 app.use(function (req, res, next) {

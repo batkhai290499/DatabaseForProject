@@ -3,13 +3,13 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'project'
+    database: 'project2'
 });
 
 module.exports = (app) => {
     // API in table Account (Need inner join to show some data in another table)
     app.get('/api/account/views', (req, res) => {
-        var sql = "SELECT account.id_account,account.username, account.password, account.name, account.age, account.address, account.phone, department.department_name, salary.money, shift.shift_name ,position.position_name , role.role_name FROM `account` INNER JOIN department ON account.id_department = department.id_department INNER JOIN salary ON account.id_salary = salary.id_salary INNER JOIN shift ON account.id_shift = shift.id_shift INNER JOIN position ON account.id_position = position.id_position INNER JOIN role ON account.id_role = role.id_role";
+        var sql = "SELECT account.id_account,account.username, account.password, account.name, account.age, account.address, account.phone, department.department_name, salary.money, shift.shift_name ,position.position_name , role.role_name FROM `account` INNER JOIN department ON account.id_department = department.id_department INNER JOIN salary ON account.id_salary = salary.id_salary INNER JOIN shift ON account.id_shift = shift.id_shift INNER JOIN position ON account.id_position = position.id_position INNER JOIN role ON account.id_role = role.id_role ORDER BY account.id_role";
         connection.query(sql, function (err, results) {
             if (err) throw err;
             res.json({ news: results });

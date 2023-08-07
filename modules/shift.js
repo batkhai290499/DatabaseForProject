@@ -3,12 +3,62 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'project'
+    database: 'project2'
 });
 
 module.exports = (app) => {
 
+    app.get('/api/subject/views/(:id_account)', (req, res) => {
+        const id_account = req.params.id_account
+        var sql = "SELECT * FROM schedule INNER JOIN subject ON subject.id_subject =schedule.id_subject WHERE id_account = '" + id_account + "'";
+         connection.query(sql, function (err, result) {
+                if (err) throw err;
+                res.json({ subject: result });
+            })       
+    }) 
+     app.get('/api/student_late/(:id_account)', (req, res) => {
+        const id_account = req.params.id_account
+        var sql = "SELECT * FROM `student_late` WHERE `id_account`= '" + id_account + "'";
+         connection.query(sql, function (err, result) {
+                if (err) throw err;
+                res.json({ subject: result });
+            })       
+    }) 
+    app.post('/api/subject/student_late', (req, res) => {
+        const dateNow = new Date().toISOString();
+        console.log(dateNow);
+        if (req.body) {
+            req.body.map(item => {
+                 var sql = "INSERT "
+                    + "INTO `student_late`( `id_account`, `date`)"
+                    + " VALUES ('"
+                    + item + "','"
+                    + dateNow + "')";
+                    connection.query(sql, function (err, results) {
+                        if (err) throw err;
+                        res.json({ student_late: results });
+                    })
+            })
+        }
+    })
 
+    app.get('/api/subject/attendance', (req, res) => {
+        const id_account = req.params.id_account
+        var sql = "SELECT * FROM account WHERE id_role = '" + 3 + "'";
+         connection.query(sql, function (err, result) {
+                if (err) throw err;
+                res.json({ subject: result });
+            })       
+    }) 
+
+        app.get('/api/subject/attendance', (req, res) => {
+        var sql = "SELECT * FROM schedule INNER JOIN subject ON subject.id_subject =schedule.id_subject";
+         connection.query(sql, function (err, result) {
+                if (err) throw err;
+                res.json({ subject: result });
+            })       
+    }) 
+    
     // API in Shift Table
     app.get('/api/shift/views', (req, res) => {
         var sql = "SELECT * FROM shift";
